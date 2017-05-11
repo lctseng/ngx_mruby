@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -v
 
 # Default install
 #   download nginx into ./build/
@@ -8,6 +8,8 @@
 #
 #   NGINX_CONFIG_OPT_ENV='--prefix=/usr/local/nginx-1.4.4' NGINX_SRC_ENV='/usr/local/src/nginx-1.4.4' sh build.sh
 #
+
+NGX_MRUBY_SRC=`pwd`
 
 set -e
 
@@ -89,4 +91,15 @@ echo "ngx_mruby building ... Done"
 
 echo "build.sh ... successful"
 
+
+if [ -n "$BUILD_DYNAMIC_MODULE" ]; then
+  sudo apt install -y libgd-dev libgeoip-dev libatomic-ops-dev libperl-dev
+  sudo apt install -y libpcre3-dev libpcre3 bison
+  cd ${NGX_MRUBY_SRC}
+  ./configure --with-ngx-src-root=${NGINX_SRC}
+  make generate_gems_config_dynamic
+  cd ${NGINX_SRC}
+  ./configure --user=nginx --group=nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid   --with-select_module --with-poll_module --with-file-aio --with-ipv6 --with-http_ssl_module  --with-http_realip_module --with-http_addition_module --with-http_xslt_module --with-http_image_filter_module --with-http_geoip_module --with-http_sub_module --with-http_dav_module --with-http_flv_module --with-http_mp4_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_auth_request_module --with-http_random_index_module --with-http_secure_link_module --with-http_degradation_module --with-http_stub_status_module --with-http_perl_module --with-http_v2_module --with-mail --with-mail_ssl_module --with-cpp_test_module  --with-cpu-opt=CPU --with-pcre  --with-pcre-jit  --with-md5-asm  --with-sha1-asm  --with-zlib-asm=CPU --with-libatomic --with-debug --with-ld-opt="-Wl,-E" --add-dynamic-module=${NGX_MRUBY_SRC} --add-dynamic-module=${NGX_MRUBY_SRC}/dependence/ngx_devel_kit 
+  make
+fi
 #sudo make install
