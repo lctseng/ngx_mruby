@@ -9,6 +9,10 @@
 #   NGINX_CONFIG_OPT_ENV='--prefix=/usr/local/nginx-1.4.4' NGINX_SRC_ENV='/usr/local/src/nginx-1.4.4' sh build.sh
 #
 
+sudo apt install -y libgd-dev libgeoip-dev libatomic-ops-dev libperl-dev
+sudo apt install -y libpcre3-dev libpcre3 bison
+NGX_MRUBY_SRC=`pwd`
+
 set -e
 
 . ./nginx_version
@@ -27,9 +31,11 @@ fi
 if [ -n "$BUILD_DYNAMIC_MODULE" ]; then
     BUILD_DIR='build_dynamic'
     NGINX_INSTALL_DIR=`pwd`'/build_dynamic/nginx'
+    CONFIG_OPT="--enable-dynamic-module --with-build-dir=$BUILD_DIR"
 else
     BUILD_DIR='build'
     NGINX_INSTALL_DIR=`pwd`'/build/nginx'
+    CONFIG_OPT="--with-build-dir=$BUILD_DIR"
 fi
 
 if [ "$NGINX_CONFIG_OPT_ENV" != "" ]; then
@@ -84,9 +90,19 @@ echo "ngx_mruby configure ..."
 echo "ngx_mruby configure ... Done"
 
 echo "ngx_mruby building ..."
+echo `pwd`
 $MAKE NUM_THREADS=$NUM_THREADS -j $NUM_THREADS
 echo "ngx_mruby building ... Done"
 
 echo "build.sh ... successful"
 
+if [ -n "$BUILD_DYNAMIC_MODULE" ]; then
+  echo "Building Dynamic.."
+  cd ${NGX_MRUBY_SRC}
+  ./configure --with-ngx-src-root=${NGINX_SRC}
+  make generate_gems_config_dynamic
+  cd ${NGINX_SRC}
+  ./configure --user=nginx --group=nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid   --with-select_module --with-poll_module --with-file-aio --with-ipv6 --with-http_ssl_module  --with-http_realip_module --with-http_addition_module --with-http_xslt_module --with-http_image_filter_module --with-http_geoip_module --with-http_sub_module --with-http_dav_module --with-http_flv_module --with-http_mp4_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_auth_request_module --with-http_random_index_module --with-http_secure_link_module --with-http_degradation_module --with-http_stub_status_module --with-http_perl_module --with-http_v2_module --with-mail --with-mail_ssl_module --with-cpp_test_module  --with-cpu-opt=CPU --with-pcre  --with-pcre-jit  --with-md5-asm  --with-sha1-asm  --with-zlib-asm=CPU --with-libatomic --with-debug --with-ld-opt="-Wl,-E" --add-dynamic-module=${NGX_MRUBY_SRC} --add-dynamic-module=${NGX_MRUBY_SRC}/dependence/ngx_devel_kit 
+  make
+fi
 #sudo make install
