@@ -8,7 +8,7 @@
 #
 #   NGINX_CONFIG_OPT_ENV='--prefix=/usr/local/nginx-1.4.4' NGINX_SRC_ENV='/usr/local/src/nginx-1.4.4' sh build.sh
 #
-BUILD_DYNAMIC_MODULE=True
+env BUILD_DYNAMIC_MODULE=True
 
 sudo apt install -y libgd-dev libgeoip-dev libatomic-ops-dev libperl-dev
 sudo apt install -y libpcre3-dev libpcre3 bison
