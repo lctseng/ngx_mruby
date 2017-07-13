@@ -8,6 +8,8 @@
 #
 #   NGINX_CONFIG_OPT_ENV='--prefix=/usr/local/nginx-1.4.4' NGINX_SRC_ENV='/usr/local/src/nginx-1.4.4' sh build.sh
 #
+sudo apt install -y libgd-dev libgeoip-dev libatomic-ops-dev libperl-dev rake
+sudo apt install -y libpcre3-dev libpcre3 bison
 
 NGX_MRUBY_SRC=`pwd`
 
@@ -93,8 +95,6 @@ echo "build.sh ... successful"
 
 
 if [ -n "$BUILD_DYNAMIC_MODULE" ]; then
-  sudo apt install -y libgd-dev libgeoip-dev libatomic-ops-dev libperl-dev
-  sudo apt install -y libpcre3-dev libpcre3 bison
   cd ${NGX_MRUBY_SRC}
   ./configure --with-ngx-src-root=${NGINX_SRC}
   make generate_gems_config_dynamic
